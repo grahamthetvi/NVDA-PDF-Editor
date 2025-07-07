@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NVDA PDF Editor</title>
+    <meta name="description" content="Professional PDF Editor optimized for NVDA screen reader">
+    
+    <!-- Accessibility meta tags -->
+    <meta name="theme-color" content="#2563eb">
+    <meta name="color-scheme" content="light dark">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/accessibility.css">
+    <link rel="stylesheet" href="styles/components.css">
+    <link rel="stylesheet" href="styles/professional-overlays.css">
+    <link rel="stylesheet" href="styles/clean-editor.css">
+    
+    <!-- High contrast and reduced motion support -->
+    <style>
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+        
+        @media (prefers-contrast: high) {
+            :root {
+                --high-contrast-mode: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Screen reader skip navigation -->
+    <div class="skip-nav">
+        <a href="#main-content" class="skip-link">Skip to main content</a>
+        <a href="#toolbar" class="skip-link">Skip to toolbar</a>
+        <a href="#pdf-viewer" class="skip-link">Skip to PDF viewer</a>
+    </div>
+    
+    <!-- Main application container -->
+    <div id="app" class="app-container" role="application" aria-label="NVDA PDF Editor">
+        
+        <!-- Application header -->
+        <header class="app-header" role="banner">
+            <div class="header-content">
+                <div class="app-title">
+                    <h1 class="app-name">NVDA PDF Editor</h1>
+                    <p class="app-subtitle">Professional PDF Editor optimized for NVDA screen reader</p>
+                </div>
+                
+                <!-- Quick actions -->
+                <div class="quick-actions" role="toolbar" aria-label="Quick actions">
+                    <button 
+                        id="btn-open-pdf" 
+                        class="btn btn-primary"
+                        aria-label="Open PDF file"
+                        title="Open PDF file (Ctrl+O)"
+                        accesskey="o"
+                    >
+                        <span class="btn-text">PDF</span>
+                        <span class="btn-label">Open PDF</span>
+                    </button>
+                    
+                    <button 
+                        id="btn-save-pdf" 
+                        class="btn btn-secondary"
+                        aria-label="Save PDF file"
+                        title="Save PDF file (Ctrl+S)"
+                        accesskey="s"
+                        disabled
+                    >
+                        <span class="btn-text">SAVE</span>
+                        <span class="btn-label">Save</span>
+                    </button>
+                    
+                    <button 
+                        id="btn-accessibility-help" 
+                        class="btn btn-info"
+                        aria-label="Open accessibility help"
+                        title="Accessibility help (F1)"
+                        accesskey="h"
+                    >
+                        <span class="btn-text">HELP</span>
+                        <span class="btn-label">Help</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+        
+        <!-- Main content area -->
+        <main id="main-content" class="main-content" role="main">
+            
+            <!-- Toolbar -->
+            <div id="toolbar" class="toolbar" role="toolbar" aria-label="PDF editing tools">
+                <div class="toolbar-section">
+                    <h2 class="toolbar-title">View</h2>
+                    <div class="toolbar-group">
+                        <button 
+                            id="btn-zoom-in" 
+                            class="btn btn-icon"
+                            aria-label="Zoom in"
+                            title="Zoom in (Ctrl+Plus)"
+                        >
+                            <span class="btn-text">+</span>
+                        </button>
+                        
+                        <div class="zoom-display" role="status" aria-live="polite">
+                            <span id="zoom-level">100%</span>
+                        </div>
+                        
+                        <button 
+                            id="btn-zoom-out" 
+                            class="btn btn-icon"
+                            aria-label="Zoom out"
+                            title="Zoom out (Ctrl+Minus)"
+                        >
+                            <span class="btn-text">-</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="toolbar-section">
+                    <h2 class="toolbar-title">Edit</h2>
+                    <div class="toolbar-group">
+                        <button 
+                            id="btn-edit-fields" 
+                            class="btn btn-tool"
+                            aria-label="Open field editor panel"
+                            title="Edit PDF fields (Ctrl+E)"
+                            disabled
+                        >
+                            <span class="btn-text">EDIT</span>
+                        </button>
+                        
+                        <button 
+                            id="btn-add-text-field" 
+                            class="btn btn-tool"
+                            aria-label="Add text field"
+                            title="Add text field (Ctrl+Shift+T)"
+                            disabled
+                        >
+                            <span class="btn-text">TEXT</span>
+                        </button>
+                        
+                        <button 
+                            id="btn-add-checkbox" 
+                            class="btn btn-tool"
+                            aria-label="Add checkbox"
+                            title="Add checkbox (Ctrl+Shift+C)"
+                            disabled
+                        >
+                            <span class="btn-text">CHECK</span>
+                        </button>
+                        
+                        <button 
+                            id="btn-add-dropdown" 
+                            class="btn btn-tool"
+                            aria-label="Add dropdown"
+                            title="Add dropdown (Ctrl+Shift+D)"
+                            disabled
+                        >
+                            <span class="btn-text">DROP</span>
+                        </button>
+                        
+                        <button 
+                            id="btn-add-signature" 
+                            class="btn btn-tool"
+                            aria-label="Add signature field"
+                            title="Add signature field (Ctrl+Shift+S)"
+                            disabled
+                        >
+                            <span class="btn-text">SIGN</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="toolbar-section">
+                    <h2 class="toolbar-title">Accessibility</h2>
+                    <div class="toolbar-group">
+                        <button 
+                            id="btn-high-contrast" 
+                            class="btn btn-toggle"
+                            aria-label="Toggle high contrast mode"
+                            title="Toggle high contrast (Ctrl+Shift+H)"
+                            aria-pressed="false"
+                        >
+                            <span class="btn-text">CONTRAST</span>
+                        </button>
+                        
+                        <button 
+                            id="btn-focus-indicators" 
+                            class="btn btn-toggle"
+                            aria-label="Toggle focus indicators"
+                            title="Toggle focus indicators (Ctrl+Shift+F)"
+                            aria-pressed="true"
+                        >
+                            <span class="btn-text">FOCUS</span>
+                        </button>
+                        
+                        <button 
+                            id="btn-screen-reader-mode" 
+                            class="btn btn-toggle"
+                            aria-label="Toggle screen reader optimized mode"
+                            title="Screen reader mode"
+                            aria-pressed="false"
+                        >
+                            <span class="btn-text">READER</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Content area with split view -->
+            <div class="content-area">
+                
+                <!-- Left Panel: PDF viewer -->
+                <div id="pdf-viewer-panel" class="panel viewer-panel" role="region" aria-label="PDF viewer">
+                    <div class="panel-header">
+                        <h2 class="panel-title">PDF Document</h2>
+                        <div class="panel-info">
+                            <span id="document-info" class="document-info" aria-live="polite">
+                                No document loaded
+                            </span>
+                        </div>
+                        
+                        <!-- Page navigation -->
+                        <div class="page-navigation" role="navigation" aria-label="Page navigation">
+                            <button 
+                                id="btn-prev-page" 
+                                class="btn btn-icon"
+                                aria-label="Previous page"
+                                title="Previous page"
+                                disabled
+                            >
+                                <span class="btn-text">&lt;</span>
+                            </button>
+                            
+                            <div class="page-info-container" aria-live="polite">
+                                <span class="current-page" id="current-page">0</span>
+                                <span class="page-separator">/</span>
+                                <span class="total-pages" id="total-pages">0</span>
+                            </div>
+                            
+                            <button 
+                                id="btn-next-page" 
+                                class="btn btn-icon"
+                                aria-label="Next page"
+                                title="Next page"
+                                disabled
+                            >
+                                <span class="btn-text">&gt;</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="viewer-content">
+                        <!-- PDF viewer -->
+                        <div id="pdf-viewer" class="pdf-viewer" role="document">
+                            <!-- PDF placeholder -->
+                            <div id="pdf-placeholder" class="pdf-placeholder">
+                                <div class="placeholder-content">
+                                    <div class="placeholder-icon">
+                                        <span class="icon-text">PDF</span>
+                                    </div>
+                                    <h3 class="placeholder-title">No PDF Loaded</h3>
+                                    <p class="placeholder-description">
+                                        Open a PDF file to begin editing. This editor is optimized for screen readers and keyboard navigation.
+                                    </p>
+                                    <button 
+                                        id="btn-open-pdf-main" 
+                                        class="btn btn-primary btn-large"
+                                        aria-label="Open PDF file"
+                                    >
+                                        <span class="btn-text">PDF</span>
+                                        <span class="btn-label">Choose PDF File</span>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- PDF pages will be rendered here -->
+                            <div id="pdf-pages" class="pdf-pages" style="display: none;"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Center Panel: HTML Overlay View (new) -->
+                <div id="overlay-viewer-panel" class="panel overlay-panel" role="region" aria-label="Accessible overlay view" style="display: none;">
+                    <div class="panel-header">
+                        <h2 class="panel-title">Accessible Elements</h2>
+                        <div class="panel-controls">
+                            <button 
+                                id="btn-toggle-overlay-view" 
+                                class="btn btn-sm"
+                                aria-label="Toggle overlay view"
+                                aria-pressed="false"
+                            >
+                                <span class="btn-text">Show Overlays</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="overlay-content">
+                        <div id="overlay-container" class="overlay-container">
+                            <!-- Accessible overlays will be displayed here -->
+                            <div class="overlay-instructions">
+                                <p>This panel shows all interactive elements found in the PDF.</p>
+                                <p>Use Tab to navigate between elements, Enter to activate.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Right Panel: Properties (enhanced) -->
+                <div id="properties-panel" class="panel properties-panel" role="region" aria-label="Properties">
+                    <div class="panel-header">
+                        <h2 class="panel-title">Properties</h2>
+                        <button 
+                            id="btn-toggle-properties" 
+                            class="btn btn-icon panel-toggle"
+                            aria-label="Toggle properties panel"
+                            aria-expanded="true"
+                            aria-controls="properties-content"
+                        >
+                            <span class="btn-text">-</span>
+                        </button>
+                    </div>
+                    
+                    <div id="properties-content" class="panel-content">
+                        <div id="properties-display" class="properties-display">
+                            <!-- Default state -->
+                            <div class="properties-empty">
+                                <p>Select an element to view its properties</p>
+                            </div>
+                            
+                            <!-- Properties will be populated here when an element is selected -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <!-- Status bar -->
+        <div class="status-bar" role="status" aria-live="polite">
+            <div class="status-section">
+                <span id="status-message" class="status-message">Ready</span>
+            </div>
+            <div class="status-section">
+                <span id="page-info" class="page-info"></span>
+            </div>
+            <div class="status-section">
+                <span id="zoom-info" class="zoom-info">100%</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Accessibility announcements -->
+    <div id="aria-announcements" class="sr-only" aria-live="assertive" aria-atomic="true"></div>
+    
+    <!-- Loading indicator -->
+    <div id="loading-indicator" class="loading-indicator" role="status" aria-label="Loading" style="display: none;">
+        <div class="loading-content">
+            <div class="loading-spinner" aria-hidden="true"></div>
+            <p class="loading-text">Loading PDF...</p>
+        </div>
+    </div>
+    
+    <!-- Error dialog -->
+    <div id="error-dialog" class="modal" role="dialog" aria-labelledby="error-title" aria-hidden="true" style="display: none;">
+        <div class="modal-overlay" aria-hidden="true"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="error-title" class="modal-title">Error</h2>
+                <button 
+                    id="btn-close-error" 
+                    class="btn btn-icon modal-close"
+                    aria-label="Close error dialog"
+                >
+                    <span class="btn-text">X</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p id="error-message" class="error-message"></p>
+            </div>
+            <div class="modal-footer">
+                <button 
+                    id="btn-error-ok" 
+                    class="btn btn-primary"
+                    aria-label="Acknowledge error"
+                >
+                    <span class="btn-text">OK</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Test modal for debugging -->
+    <div id="test-modal" class="modal" role="dialog" aria-labelledby="test-title" aria-hidden="true" style="display: none;">
+        <div class="modal-overlay" aria-hidden="true"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="test-title" class="modal-title">Test Modal</h2>
+                <button 
+                    id="btn-close-test" 
+                    class="btn btn-icon modal-close"
+                    aria-label="Close test modal"
+                >
+                    <span class="btn-text">X</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>This is a test modal. If you can see this, the modal system is working!</p>
+                <p>The problem might be with specific modal implementations, not the modal system itself.</p>
+            </div>
+            <div class="modal-footer">
+                <button 
+                    id="btn-test-ok" 
+                    class="btn btn-primary"
+                    aria-label="Close test modal"
+                >
+                    <span class="btn-text">OK</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Scripts -->
+    <!-- PDF.js library - using ES modules -->
+    <script type="module">
+        async function loadPDFJS() {
+            try {
+                console.log('Attempting to load PDF.js...');
+                
+                // Multiple strategies to load PDF.js
+                const possiblePaths = [
+                    '../../node_modules/pdfjs-dist/build/pdf.min.mjs',
+                    '../node_modules/pdfjs-dist/build/pdf.min.mjs',
+                    './node_modules/pdfjs-dist/build/pdf.min.mjs',
+                    '../../node_modules/pdfjs-dist/build/pdf.mjs',
+                    '../node_modules/pdfjs-dist/build/pdf.mjs',
+                    './node_modules/pdfjs-dist/build/pdf.mjs'
+                ];
+                
+                let pdfjsLib = null;
+                let loadedPath = null;
+                
+                for (const pathToTry of possiblePaths) {
+                    try {
+                        console.log(`Trying to load PDF.js from: ${pathToTry}`);
+                        pdfjsLib = await import(pathToTry);
+                        loadedPath = pathToTry;
+                        console.log(`Successfully loaded PDF.js from: ${pathToTry}`);
+                        break;
+                    } catch (pathError) {
+                        console.log(`Failed to load from ${pathToTry}:`, pathError.message);
+                    }
+                }
+                
+                if (!pdfjsLib) {
+                    throw new Error('Could not load PDF.js from any path');
+                }
+                
+                // Make pdfjsLib available globally
+                window.pdfjsLib = pdfjsLib;
+                
+                // Configure PDF.js worker
+                const workerPaths = [
+                    '../../node_modules/pdfjs-dist/build/pdf.worker.min.mjs',
+                    '../node_modules/pdfjs-dist/build/pdf.worker.min.mjs',
+                    './node_modules/pdfjs-dist/build/pdf.worker.min.mjs',
+                    '../../node_modules/pdfjs-dist/build/pdf.worker.mjs',
+                    '../node_modules/pdfjs-dist/build/pdf.worker.mjs',
+                    './node_modules/pdfjs-dist/build/pdf.worker.mjs'
+                ];
+                
+                // Try to find worker based on the main library path
+                const basePath = loadedPath.replace(/pdf\.m?i?n\.mjs$/, '');
+                const workerPath = basePath + 'pdf.worker.min.mjs';
+                
+                try {
+                    // Test if worker exists by trying to create URL
+                    const workerUrl = new URL(workerPath, import.meta.url);
+                    pdfjsLib.GlobalWorkerOptions.workerSrc = workerUrl.href;
+                    console.log('PDF.js worker configured:', workerUrl.href);
+                } catch (workerError) {
+                    console.warn('Could not configure worker, disabling:', workerError.message);
+                    pdfjsLib.GlobalWorkerOptions.workerSrc = '';
+                }
+                
+                console.log('PDF.js library loaded and configured successfully');
+                
+                // Dispatch event when PDF.js is ready
+                window.dispatchEvent(new CustomEvent('pdfjs-ready'));
+                
+            } catch (error) {
+                console.error('Failed to load PDF.js:', error);
+                
+                // Create a mock pdfjsLib for graceful degradation
+                window.pdfjsLib = {
+                    getDocument: () => Promise.reject(new Error('PDF.js not available')),
+                    GlobalWorkerOptions: { workerSrc: '' },
+                    OPS: {} // Mock operations
+                };
+                
+                console.log('PDF.js mock created for graceful degradation');
+                window.dispatchEvent(new CustomEvent('pdfjs-ready'));
+            }
+        }
+        
+        // Load PDF.js
+        loadPDFJS();
+    </script>
+    
+    <script src="js/accessibility.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/pdf-processor.js"></script>
+    <script src="js/pdf-modifier.js"></script>
+    <script src="js/overlay-manager.js"></script>
+    <script src="js/pdf-element-extractor.js"></script>
+    <script src="js/checkbox-state-detector.js"></script>
+    <script src="js/auto-overlay-manager.js"></script>
+    <script src="js/accessible-pdf-coordinator.js"></script>
+    <script src="js/unstructured-text-editor.js"></script>
+    <script src="js/clean-pdf-editor.js"></script>
+    <script src="js/pdf-editing-integration.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html> 
