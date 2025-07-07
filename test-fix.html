@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AccessiblePDFCoordinator Fix Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .status { padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 5px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>🔧 AccessiblePDFCoordinator Fix Test</h1>
+    <p>This page tests if the AccessiblePDFCoordinator syntax error has been fixed.</p>
+    
+    <div id="results"></div>
+    
+    <!-- Load the scripts in the same order as the main app -->
+    <script src="src/renderer/js/accessibility.js"></script>
+    <script src="src/renderer/js/utils.js"></script>
+    <script src="src/renderer/js/pdf-processor.js"></script>
+    <script src="src/renderer/js/pdf-modifier.js"></script>
+    <script src="src/renderer/js/overlay-manager.js"></script>
+    <script src="src/renderer/js/pdf-element-extractor.js"></script>
+    <script src="src/renderer/js/checkbox-state-detector.js"></script>
+    <script src="src/renderer/js/auto-overlay-manager.js"></script>
+    <script src="src/renderer/js/accessible-pdf-coordinator.js"></script>
+    <script src="src/renderer/js/unstructured-text-editor.js"></script>
+    
+    <script>
+        const results = document.getElementById('results');
+        
+        function addResult(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `status ${type}`;
+            div.innerHTML = message;
+            results.appendChild(div);
+        }
+        
+        function runTests() {
+            console.log('🧪 Running AccessiblePDFCoordinator fix tests...');
+            
+            // Test 1: Check if class is available
+            addResult('Test 1: Checking if AccessiblePDFCoordinator is available...', 'info');
+            
+            if (typeof window.AccessiblePDFCoordinator === 'undefined') {
+                addResult('❌ FAILED: AccessiblePDFCoordinator is not available', 'error');
+                addResult('This means there is still a syntax error in accessible-pdf-coordinator.js', 'error');
+                return;
+            }
+            
+            addResult('✅ PASSED: AccessiblePDFCoordinator is available', 'success');
+            
+            // Test 2: Check if it's a constructor
+            addResult('Test 2: Checking if AccessiblePDFCoordinator is a valid constructor...', 'info');
+            
+            if (typeof window.AccessiblePDFCoordinator !== 'function') {
+                addResult('❌ FAILED: AccessiblePDFCoordinator is not a function', 'error');
+                return;
+            }
+            
+            addResult('✅ PASSED: AccessiblePDFCoordinator is a function', 'success');
+            
+            // Test 3: Try to create an instance
+            addResult('Test 3: Attempting to create AccessiblePDFCoordinator instance...', 'info');
+            
+            try {
+                // Create mock dependencies
+                const mockPdfProcessor = { currentDocument: null };
+                const mockAccessibility = { announceToScreenReader: () => {} };
+                
+                const instance = new window.AccessiblePDFCoordinator(mockPdfProcessor, mockAccessibility);
+                
+                addResult('✅ PASSED: Successfully created AccessiblePDFCoordinator instance', 'success');
+                addResult(`Instance type: ${typeof instance}`, 'info');
+                addResult(`Has initialize method: ${typeof instance.initialize === 'function'}`, 'info');
+                
+            } catch (error) {
+                addResult('❌ FAILED: Could not create AccessiblePDFCoordinator instance', 'error');
+                addResult(`Error: ${error.message}`, 'error');
+                console.error('Constructor error:', error);
+                return;
+            }
+            
+            // Test 4: Check dependencies
+            addResult('Test 4: Checking dependencies...', 'info');
+            
+            const dependencies = [
+                'PDFElementExtractor',
+                'CheckboxStateDetector', 
+                'AutoOverlayManager',
+                'UnstructuredTextEditor'
+            ];
+            
+            let allDepsAvailable = true;
+            dependencies.forEach(dep => {
+                if (window[dep]) {
+                    addResult(`✅ ${dep} is available`, 'success');
+                } else {
+                    addResult(`❌ ${dep} is missing`, 'error');
+                    allDepsAvailable = false;
+                }
+            });
+            
+            // Final result
+            if (allDepsAvailable) {
+                addResult('🎉 ALL TESTS PASSED! The fix is working correctly.', 'success');
+                addResult('Your app should now start without the constructor error.', 'success');
+            } else {
+                addResult('⚠️ Some dependencies are missing, but AccessiblePDFCoordinator itself is fixed.', 'error');
+            }
+        }
+        
+        // Run tests when page loads
+        window.addEventListener('load', () => {
+            setTimeout(runTests, 100);
+        });
+        
+        // Catch any script loading errors
+        window.addEventListener('error', (event) => {
+            addResult(`🔥 Script Error: ${event.message} (${event.filename}:${event.lineno})`, 'error');
+        });
+    </script>
+</body>
+</html> 
